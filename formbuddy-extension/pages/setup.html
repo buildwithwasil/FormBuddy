@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FormBuddy AI — Setup Profile</title>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --card2: #16213e;
+      --border: #2d2d4e;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, "Segoe UI", sans-serif;
+      font-size: 14px; line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .page { display: flex; gap: 0; min-height: 100vh; }
+    .sidebar {
+      width: 220px; background: var(--card); border-right: 1px solid var(--border);
+      padding: 24px 16px; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .main { flex: 1; padding: 32px; max-width: 740px; overflow-y: auto; }
+
+    /* Sidebar nav */
+    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: white;
+    }
+    .logo-text { font-weight: 800; font-size: 15px; }
+    .logo-sub { font-size: 11px; color: var(--muted); }
+    .nav-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; padding: 0 4px;
+    }
+    .nav-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 6px; cursor: pointer;
+      font-size: 13px; color: var(--muted); transition: all 0.15s;
+      text-decoration: none;
+    }
+    .nav-link:hover { background: var(--card2); color: var(--text); }
+    .nav-link.active { background: rgba(99,102,241,0.15); color: var(--primary); font-weight: 600; }
+
+    /* Progress */
+    .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #06b6d4); transition: width 0.4s; }
+    .progress-label { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    /* Section header */
+    .section { display: none; }
+    .section.active { display: block; }
+    .section-header { margin-bottom: 24px; }
+    .section-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .section-desc { color: var(--muted); font-size: 14px; }
+
+    /* Form groups */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid.cols1 { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 12px; font-weight: 600; color: var(--muted); }
+    label span.req { color: #ef4444; margin-left: 2px; }
+    input, select, textarea {
+      padding: 10px 12px; border-radius: 7px;
+      background: var(--card2); border: 1px solid var(--border);
+      color: var(--text); font-size: 13px; outline: none;
+      transition: border-color 0.15s; font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    input::placeholder { color: var(--muted); }
+    select option { background: var(--card); }
+    textarea { resize: vertical; min-height: 72px; }
+
+    /* Card sections */
+    .form-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+    }
+    .form-card-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+      border-left: 3px solid var(--primary); padding-left: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-weight: 600;
+      font-size: 14px; border: none; cursor: pointer; font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--primary); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: var(--success); color: white;
+      padding: 12px 20px; border-radius: 8px; font-weight: 600;
+      display: none; gap: 8px; align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    /* Markdown preview */
+    .md-preview {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px;
+      font-family: "SF Mono", "Fira Code", monospace; font-size: 12px;
+      line-height: 1.8; white-space: pre-wrap; max-height: 400px; overflow-y: auto;
+      color: var(--muted);
+    }
+    .md-preview strong { color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .page { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: relative; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="toast">✓ <span id="toast-msg"></span></div>
+
+<div class="page">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-row">
+      <div class="logo-icon">✦</div>
+      <div>
+        <div class="logo-text">FormBuddy</div>
+        <div class="logo-sub">AI Form Agent</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Profile Setup</div>
+    <a class="nav-link active" data-section="personal">👤 Personal</a>
+    <a class="nav-link" data-section="identity">🪪 Identity</a>
+    <a class="nav-link" data-section="address">📍 Address</a>
+    <a class="nav-link" data-section="financial">🏦 Financial</a>
+    <a class="nav-link" data-section="academic">🎓 Academic</a>
+    <a class="nav-link" data-section="api">🔑 API Key</a>
+    <a class="nav-link" data-section="preview">📄 Markdown</a>
+
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">0% complete</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Personal -->
+    <section class="section active" id="section-personal">
+      <div class="section-header">
+        <div class="section-title">👤 Personal Details</div>
+        <div class="section-desc">Basic information used in almost every form.</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Basic Info</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Full Name <span class="req">*</span></label>
+            <input id="full_name" placeholder="As per Aadhaar / official documents" data-weight="2" />
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input id="dob" type="date" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select id="gender" data-weight="1">
+              <option value="">Select…</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Third Gender</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Email Address <span class="req">*</span></label>
+            <input id="email" type="email" placeholder="you@example.com" data-weight="2" />
+          </div>
+          <div class="form-group">
+            <label>Phone / Mobile <span class="req">*</span></label>
+            <input id="phone" type="tel" placeholder="10-digit mobile number" data-weight="2" />
+          </div>
+          <div class="form-group">
+            <label>Nationality</label>
+            <input id="nationality" placeholder="e.g. Indian" data-weight="1" />
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goSection('identity')">Next: Identity →</button>
+        <button class="btn btn-secondary" onclick="saveAll()">💾 Save</button>
+      </div>
+    </section>
+
+    <!-- Identity -->
+    <section class="section" id="section-identity">
+      <div class="section-header">
+        <div class="section-title">🪪 Identity Documents</div>
+        <div class="section-desc">Used for KYC, government forms and visa applications.</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Government IDs</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Aadhaar Number</label>
+            <input id="aadhaar" placeholder="12-digit Aadhaar" maxlength="14" data-weight="2" />
+          </div>
+          <div class="form-group">
+            <label>PAN Number</label>
+            <input id="pan" placeholder="ABCDE1234F" maxlength="10" style="text-transform:uppercase" data-weight="2" />
+          </div>
+          <div class="form-group">
+            <label>Passport Number</label>
+            <input id="passport_number" placeholder="e.g. A1234567" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>Passport Expiry Date</label>
+            <input id="passport_expiry" type="date" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>Caste Category</label>
+            <select id="caste_category" data-weight="1">
+              <option value="">Select…</option>
+              <option>SC</option>
+              <option>ST</option>
+              <option>OBC</option>
+              <option>General</option>
+              <option>EWS</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goSection('personal')">← Back</button>
+        <button class="btn btn-primary" onclick="goSection('address')">Next: Address →</button>
+        <button class="btn btn-secondary" onclick="saveAll()">💾 Save</button>
+      </div>
+    </section>
+
+    <!-- Address -->
+    <section class="section" id="section-address">
+      <div class="section-header">
+        <div class="section-title">📍 Address</div>
+        <div class="section-desc">Your current and permanent address details.</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Residential Address</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Address Line 1</label>
+            <input id="address_line1" placeholder="House / Flat no., Street, Locality" data-weight="1" />
+          </div>
+          <div class="form-group full">
+            <label>Address Line 2</label>
+            <input id="address_line2" placeholder="Area, Landmark (optional)" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>City / Town <span class="req">*</span></label>
+            <input id="city" placeholder="e.g. Bengaluru" data-weight="2" />
+          </div>
+          <div class="form-group">
+            <label>State <span class="req">*</span></label>
+            <input id="state" placeholder="e.g. Karnataka" data-weight="2" />
+          </div>
+          <div class="form-group">
+            <label>PIN Code</label>
+            <input id="pincode" placeholder="6-digit PIN" maxlength="6" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <input id="country" placeholder="e.g. India" value="India" data-weight="1" />
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goSection('identity')">← Back</button>
+        <button class="btn btn-primary" onclick="goSection('financial')">Next: Financial →</button>
+        <button class="btn btn-secondary" onclick="saveAll()">💾 Save</button>
+      </div>
+    </section>
+
+    <!-- Financial -->
+    <section class="section" id="section-financial">
+      <div class="section-header">
+        <div class="section-title">🏦 Financial Details</div>
+        <div class="section-desc">Bank account for DBT and scholarship disbursements.</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Bank Account</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Bank Account Number</label>
+            <input id="bank_account" placeholder="Your bank account number" data-weight="2" />
+          </div>
+          <div class="form-group">
+            <label>IFSC Code</label>
+            <input id="ifsc" placeholder="e.g. SBIN0012345" maxlength="11" style="text-transform:uppercase" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>Annual Family Income (₹)</label>
+            <input id="annual_income" type="number" placeholder="e.g. 180000" data-weight="1" />
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goSection('address')">← Back</button>
+        <button class="btn btn-primary" onclick="goSection('academic')">Next: Academic →</button>
+        <button class="btn btn-secondary" onclick="saveAll()">💾 Save</button>
+      </div>
+    </section>
+
+    <!-- Academic -->
+    <section class="section" id="section-academic">
+      <div class="section-header">
+        <div class="section-title">🎓 Academic / Professional</div>
+        <div class="section-desc">Used for college applications and scholarship forms.</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Academic Details</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Occupation</label>
+            <select id="occupation" data-weight="1">
+              <option value="">Select…</option>
+              <option>Student</option>
+              <option>Employed</option>
+              <option>Self-Employed</option>
+              <option>Unemployed</option>
+              <option>Retired</option>
+              <option>Homemaker</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Organisation / Employer</label>
+            <input id="organisation" placeholder="Company or institution name" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>Course Name</label>
+            <input id="course_name" placeholder="e.g. B.Com, B.Tech, MA" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>Institution / College</label>
+            <input id="institution" placeholder="College or university name" data-weight="1" />
+          </div>
+          <div class="form-group">
+            <label>Year of Study</label>
+            <select id="year_of_study" data-weight="1">
+              <option value="">Select…</option>
+              <option>1st Year</option>
+              <option>2nd Year</option>
+              <option>3rd Year</option>
+              <option>4th Year</option>
+              <option>PG 1st Year</option>
+              <option>PG 2nd Year</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Preferred Language</label>
+            <select id="language" data-weight="0">
+              <option value="English">English</option>
+              <option value="Kannada">ಕನ್ನಡ</option>
+              <option value="Hindi">हिंदी</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goSection('financial')">← Back</button>
+        <button class="btn btn-primary btn-success" onclick="saveAll()">✓ Save Profile</button>
+      </div>
+    </section>
+
+    <!-- API Key -->
+    <section class="section" id="section-api">
+      <div class="section-header">
+        <div class="section-title">🔑 Gemini API Key</div>
+        <div class="section-desc">
+          FormBuddy uses Google Gemini for intelligent field matching.
+          Works without a key (rule-based fallback), but Gemini gives much better results.
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Google Gemini (Free Tier Available)</div>
+        <div class="form-group cols1" style="margin-bottom:16px;">
+          <label>API Key</label>
+          <input id="gemini_key" type="password" placeholder="AIzaSy…" />
+        </div>
+        <div style="font-size:13px; color:var(--muted); line-height:1.8;">
+          <strong style="color:var(--text);">How to get a free Gemini API key:</strong><br/>
+          1. Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--primary);">aistudio.google.com/app/apikey</a><br/>
+          2. Click <em>Get API key → Create API key</em><br/>
+          3. Copy and paste it above<br/>
+          4. Free tier includes 15 requests/minute — more than enough for form filling.
+        </div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="saveApiKey()">💾 Save API Key</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Markdown Preview -->
+    <section class="section" id="section-preview">
+      <div class="section-header">
+        <div class="section-title">📄 Profile Markdown</div>
+        <div class="section-desc">
+          Your profile stored as a readable Markdown file — fast, portable, no database needed.
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">profile.md (live preview)</div>
+        <pre class="md-preview" id="md-preview-content">Loading…</pre>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn-secondary" onclick="copyMd()">📋 Copy Markdown</button>
+          <button class="btn btn-secondary" onclick="downloadMd()">⬇ Download .md</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ── Navigation ────────────────────────────────────────────────────────────────
+const sections = ['personal','identity','address','financial','academic','api','preview'];
+
+function goSection(id) {
+  sections.forEach(s => {
+    document.getElementById('section-' + s).classList.toggle('active', s === id);
+    const link = document.querySelector(`.nav-link[data-section="${s}"]`);
+    if (link) link.classList.toggle('active', s === id);
+  });
+  if (id === 'preview') loadMarkdownPreview();
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('.nav-link[data-section]').forEach(link => {
+  link.addEventListener('click', e => { e.preventDefault(); goSection(link.dataset.section); });
+});
+
+// ── Profile fields ────────────────────────────────────────────────────────────
+const FIELDS = [
+  'full_name','dob','gender','email','phone','nationality',
+  'aadhaar','pan','passport_number','passport_expiry','caste_category',
+  'address_line1','address_line2','city','state','pincode','country',
+  'bank_account','ifsc','annual_income',
+  'occupation','organisation','course_name','institution','year_of_study','language'
+];
+
+function readForm() {
+  const p = {};
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) p[id] = el.value.trim();
+  });
+  return p;
+}
+
+function populateForm(profile) {
+  if (!profile) return;
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && profile[id] !== undefined) el.value = profile[id];
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const p = readForm();
+  const weightedFields = FIELDS.map(id => {
+    const el = document.getElementById(id);
+    const w = parseInt(el?.dataset?.weight || '1');
+    return { filled: !!(p[id] && p[id].trim()), weight: w };
+  });
+  const total = weightedFields.reduce((s, f) => s + f.weight, 0);
+  const filled = weightedFields.filter(f => f.filled).reduce((s, f) => s + f.weight, 0);
+  const pct = Math.round((filled / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '% complete';
+}
+
+FIELDS.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateProgress);
+});
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  document.getElementById('toast-msg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.style.display = 'flex';
+  setTimeout(() => { t.style.display = 'none'; }, 2500);
+}
+
+async function saveAll() {
+  const profile = readForm();
+  chrome.runtime.sendMessage({ type: 'SAVE_PROFILE', profile }, () => {
+    showToast('Profile saved!');
+    updateProgress();
+  });
+}
+
+async function saveApiKey() {
+  const key = document.getElementById('gemini_key').value.trim();
+  if (!key) return;
+  chrome.runtime.sendMessage({ type: 'SAVE_API_KEY', key }, () => {
+    showToast('API key saved!');
+  });
+}
+
+// ── Markdown preview ──────────────────────────────────────────────────────────
+function loadMarkdownPreview() {
+  chrome.runtime.sendMessage({ type: 'GET_PROFILE_MD' }, (md) => {
+    document.getElementById('md-preview-content').textContent = md || '# No profile saved yet.\n\nFill in your details and save first.';
+  });
+}
+
+function copyMd() {
+  const text = document.getElementById('md-preview-content').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
+}
+
+function downloadMd() {
+  const text = document.getElementById('md-preview-content').textContent;
+  const blob = new Blob([text], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'formbuddy-profile.md';
+  a.click();
+}
+
+// ── Load saved data on start ──────────────────────────────────────────────────
+chrome.runtime.sendMessage({ type: 'GET_PROFILE' }, populateForm);
+chrome.runtime.sendMessage({ type: 'GET_API_KEY' }, (key) => {
+  if (key) document.getElementById('gemini_key').value = key;
+});
+</script>
+</body>
+</html>
